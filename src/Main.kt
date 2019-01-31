@@ -34,7 +34,8 @@ fun String.span(predicate: (Char) -> Boolean): Pair<String, String> =
 
 fun compute(expression: String): Double = evaluate(parse(expression))
 
-fun parse(input: String): LispTree = expression(input).run {
+fun parse(input: String): LispTree = with(expression(input))
+{
     if (second.isEmpty()) first
     else error("Leftover tokens: $second")
 }
@@ -64,7 +65,6 @@ fun keyword(input: String): Pair<LispTree, String> = input
         }
     }
 
-
 fun unaryOperation(operator: Operator.Unary, input: String): Pair<LispTree, String> = expression(input)
     .run { UnaryNode(operator, first) to second }
 
@@ -89,9 +89,9 @@ fun binaryOperation(input: String): Pair<LispTree, String> = when (input.first()
 }
 
 fun buildOperation(operator: Operator.Binary, input: String): Pair<LispTree, String> =
-    expression(input).let { (left, rest1) ->
-        expression(rest1).let { (right, rest2) ->
-            Operation(operator, left, right) to rest2
+    expression(input).let { (left, inputTail) ->
+        expression(inputTail).let { (right, inputTail) ->
+            Operation(operator, left, right) to inputTail
         }
     }
 
@@ -129,7 +129,7 @@ fun evaluateLoop()
 
     val input = readLine().orEmpty()
 
-    if (!":q".contentEquals(input))
+    if (":q" != input)
     {
         try
         {
