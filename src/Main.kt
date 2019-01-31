@@ -69,7 +69,7 @@ fun unaryOperation(operator: Operator.Unary, input: String): Pair<LispTree, Stri
     .run { UnaryNode(operator, first) to second }
 
 fun number(input: String): Pair<LispTree, String> = input
-    .span(Char::isDigit)
+    .span { it.isDigit() || it == '.' }
     .run { Numeral(first.toDouble()) to second }
 
 fun validate(pair: Pair<LispTree, String>): Pair<LispTree, String> = with(pair)
