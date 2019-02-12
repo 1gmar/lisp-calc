@@ -79,7 +79,7 @@ binaryOperator op = case op of
 unaryOperator :: UOperator -> Double -> Double
 unaryOperator op = case op of
     UPlus  -> id
-    UMinus -> \x -> -x
+    UMinus -> negate
     Sqrt   -> sqrt
 
 evaluate :: LispTree -> Double
@@ -103,6 +103,5 @@ evaluateLoop = do
     putStr "> "
     input <- getLine
     when (":q" /= input) $ do
-        let result = compute input
-        putStrLn $ showResult result
+        putStrLn $ showResult $ compute input
         evaluateLoop
