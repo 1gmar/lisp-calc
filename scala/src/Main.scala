@@ -40,7 +40,6 @@ object Main
     def unaryExpression(op: UOperator, input: String): TryParseResult =
         for (result <- expression(input)) yield (UExpression(op, result._1), result._2)
 
-
     def binaryExpression(input: String): TryParseResult = input.head match
     {
         case '+' => buildExpression(BPlus, input.tail)
