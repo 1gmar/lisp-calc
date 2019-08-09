@@ -1,32 +1,28 @@
 import LispTree.*
-import Operator.Binary
-import Operator.Unary
 import kotlin.math.pow
+import kotlin.math.sqrt
 
-sealed class Operator
+sealed class Binary
 {
-    sealed class Binary
-    {
-        object Plus : Binary()
-        object Minus : Binary()
-        object Times : Binary()
-        object Div : Binary()
-        object Pow : Binary()
-    }
+    object Plus : Binary()
+    object Minus : Binary()
+    object Times : Binary()
+    object Div : Binary()
+    object Pow : Binary()
+}
 
-    sealed class Unary
-    {
-        object Sqrt : Unary()
-        object Minus : Unary()
-        object Plus : Unary()
-    }
+sealed class Unary
+{
+    object Sqrt : Unary()
+    object Minus : Unary()
+    object Plus : Unary()
 }
 
 sealed class LispTree
 {
     data class Numeral(val value: Double) : LispTree()
-    data class UnaryNode(val operator: Operator.Unary, val expression: LispTree) : LispTree()
-    data class Operation(val operator: Operator.Binary, val left: LispTree, val right: LispTree) : LispTree()
+    data class UnaryNode(val operator: Unary, val expression: LispTree) : LispTree()
+    data class Operation(val operator: Binary, val left: LispTree, val right: LispTree) : LispTree()
 }
 
 fun String.span(predicate: (Char) -> Boolean): Pair<String, String> =
@@ -65,7 +61,7 @@ fun keyword(input: String): Pair<LispTree, String> = input
         }
     }
 
-fun unaryOperation(operator: Operator.Unary, input: String): Pair<LispTree, String> = expression(input)
+fun unaryOperation(operator: Unary, input: String): Pair<LispTree, String> = expression(input)
     .run { UnaryNode(operator, first) to second }
 
 fun number(input: String): Pair<LispTree, String> = input
@@ -88,7 +84,7 @@ fun binaryOperation(input: String): Pair<LispTree, String> = when (input.first()
     else -> error("Unsupported operator token: ${input.first()}")
 }
 
-fun buildOperation(operator: Operator.Binary, input: String): Pair<LispTree, String> =
+fun buildOperation(operator: Binary, input: String): Pair<LispTree, String> =
     expression(input).let { (left, inputTail) ->
         expression(inputTail).let { (right, inputTail) ->
             Operation(operator, left, right) to inputTail
@@ -102,7 +98,7 @@ fun evaluate(tree: LispTree): Double = when (tree)
     is Operation -> binaryFun(tree.operator)(evaluate(tree.left), evaluate(tree.right))
 }
 
-fun binaryFun(operator: Operator.Binary): (Double, Double) -> Double = when (operator)
+fun binaryFun(operator: Binary): (Double, Double) -> Double = when (operator)
 {
     is Binary.Plus  -> Double::plus
     is Binary.Minus -> Double::minus
@@ -111,9 +107,9 @@ fun binaryFun(operator: Operator.Binary): (Double, Double) -> Double = when (ope
     is Binary.Pow   -> Double::pow
 }
 
-fun unaryFun(operator: Operator.Unary): (Double) -> Double = when (operator)
+fun unaryFun(operator: Unary): (Double) -> Double = when (operator)
 {
-    is Unary.Sqrt  -> Math::sqrt
+    is Unary.Sqrt  -> { x -> sqrt(x) }
     is Unary.Minus -> { x -> -x }
     is Unary.Plus  -> { x -> x }
 }

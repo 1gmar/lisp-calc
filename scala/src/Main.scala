@@ -53,13 +53,14 @@ object Main
     def buildExpression(op: BOperator, input: String): TryParseResult = for
         {
         resultL <- expression(input)
-        resultR <- expression(resultL._2)
+            resultR <- expression(resultL._2)
     } yield (BExpression(op, resultL._1, resultR._1), resultR._2)
 
     def validate(tuple: (LispTree, String)): TryParseResult =
         if (tuple._2.nonEmpty && tuple._2.head == ')') Right(tuple._1, tuple._2.tail)
         else Left(s"Missing enclosing ')' token")
 
+    @scala.annotation.tailrec
     def expression(input: String): TryParseResult = input match
     {
         case _ if input.head == '('      => binaryExpression(input.tail).flatMap(validate)
@@ -110,6 +111,7 @@ object Main
         case Right(result) => result.toString
     }
 
+    @scala.annotation.tailrec
     def evaluateLoop(): Unit =
     {
         print("> ")
